@@ -9,7 +9,7 @@ from zip_fleet.models import Aircraft, Airline
 
 from rest_framework.test import APIClient
 
-from zip_fleet.serializers import AircraftSerializer, AircraftDetailSerializer
+from zip_fleet.serializers import AircraftSerializer, AircraftDetailSerializer, AirlineSerializer
 
 AIRCRAFT_URL = reverse("zip_fleet:aircraft-list")
 AIRLINE_URL = reverse("zip_fleet:airline-list")
@@ -44,6 +44,18 @@ class AircraftApiTests(TestCase):
 
         aircrafts = Aircraft.objects.all().order_by("id")
         serializer = AircraftSerializer(aircrafts, many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_list_airlines(self):
+        sample_airline()
+        sample_airline()
+
+        res = self.client.get(AIRLINE_URL)
+
+        airlines = Airline.objects.all().order_by("id")
+        serializer = AirlineSerializer(airlines, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -89,16 +101,18 @@ class AircraftApiTests(TestCase):
         fuel_tank_coeficient = 200
 
         fuel_capacity = aircraft.id * fuel_tank_coeficient
-        fuel_consumption = round(
-            (math.log(aircraft.id) * 0.08) + (aircraft.passengers * 0.002), 3
+        fuel_consumption = (
+                (math.log(aircraft.id) * 0.08) +
+                (aircraft.passengers * 0.002)
         )
-        flight_time = round(fuel_capacity / fuel_consumption, 2)
+
+        flight_time = fuel_capacity / fuel_consumption
 
         serializer = AircraftDetailSerializer(aircraft)
 
-        self.assertEqual(serializer.data["fuel_capacity"], fuel_capacity)
-        self.assertEqual(serializer.data["fuel_consumption"], fuel_consumption)
-        self.assertEqual(serializer.data["flight_time"], flight_time)
+        self.assertAlmostEqual(serializer.data["fuel_capacity"], fuel_capacity)
+        self.assertAlmostEqual(serializer.data["fuel_consumption"], fuel_consumption)
+        self.assertAlmostEqual(serializer.data["flight_time"], flight_time)
 
     def test_can_not_create_more_than_10_aircrafts(self):
         airline = sample_airline()
@@ -130,3 +144,31 @@ class AircraftApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Airline.objects.count(), 1)
+
+    def test_create_aircraft_when_passenger_more_than_seats(self):
+        airline = sample_airline()
+
+        payload = {
+            "airline": airline,
+            "seats": 10,
+            "passengers": 25
+        }
+
+        res = self.client.post(AIRLINE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Aircraft.objects.count(), 0)
+
+    def test_create_arcraft_with_negative_seats_and_passengers(self):
+        airline = sample_airline()
+
+        payload = {
+            "airline": airline,
+            "seats": -15,
+            "passengers": -15
+        }
+
+        res = self.client.post(AIRLINE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Aircraft.objects.count(), 0)
