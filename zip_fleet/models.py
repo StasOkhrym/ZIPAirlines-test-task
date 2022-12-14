@@ -18,7 +18,13 @@ class Aircraft(models.Model):
 
     @property
     def fuel_consumption(self) -> int | float:
-        return (math.log(self.id) * 0.08) + (self.passengers * 0.002)
+        fuel_consumption = (math.log(self.id) * 0.08) + (self.passengers * 0.002)
+        return round(fuel_consumption, 3)
+
+    @property
+    def flight_time(self):
+        flight_time = self.fuel_capacity / self.fuel_consumption
+        return round(flight_time, 2)
 
     @staticmethod
     def validate_passengers(seats, passengers, error_to_raise):
