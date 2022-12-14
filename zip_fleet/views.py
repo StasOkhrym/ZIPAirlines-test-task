@@ -39,7 +39,7 @@ class AircraftViewSet(
         return [int(str_id) for str_id in qs.split(",")]
 
     def get_queryset(self):
-        airlines = self.request.query_params("airlines")
+        airlines = self.request.query_params.get("airlines")
 
         queryset = self.queryset
 

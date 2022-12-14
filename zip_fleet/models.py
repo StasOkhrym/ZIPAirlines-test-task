@@ -25,7 +25,9 @@ class Aircraft(models.Model):
 
     @property
     def fuel_consumption(self) -> int | float:
-        fuel_consumption = (math.log(self.id) * 0.08) + (self.passengers * 0.002)
+        fuel_consumption = (math.log(self.id) * 0.08) + (
+            self.passengers * 0.002
+        )
         return round(fuel_consumption, 3)
 
     @property
@@ -37,9 +39,7 @@ class Aircraft(models.Model):
     def validate_passengers(seats, passengers, error_to_raise):
         if not (0 <= passengers <= seats):
             raise error_to_raise(
-                {
-                    "passengers": "please enter correct passengers count"
-                }
+                {"passengers": "please enter correct passengers count"}
             )
 
     def clean(self):
