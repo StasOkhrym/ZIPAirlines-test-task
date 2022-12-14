@@ -5,7 +5,6 @@ from zip_fleet.models import Aircraft, Airline
 
 
 class AirlineSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Airline
         fields = ("id", "name")
@@ -27,7 +26,9 @@ class AircraftSerializer(serializers.ModelSerializer):
 
 class AircraftCreateSerializer(AircraftSerializer):
     def create(self, validated_data) -> Aircraft:
-        aircrafts = Aircraft.objects.filter(airline=validated_data["airline"]).count()
+        aircrafts = Aircraft.objects.filter(
+            airline=validated_data["airline"]
+        ).count()
 
         if aircrafts > 9:
             raise ValidationError(
