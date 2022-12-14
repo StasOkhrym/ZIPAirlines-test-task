@@ -5,10 +5,17 @@ from django.db import models
 from rest_framework.exceptions import ValidationError
 
 
+class Airline(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Aircraft(models.Model):
     FUEL_TANK_COEFICIENT = 200
 
-    airline = models.CharField(max_length=255, default="ZipAirline")
+    airline = models.ForeignKey(Airline, on_delete=models.CASCADE)
     seats = models.IntegerField(validators=[MinValueValidator(1)])
     passengers = models.IntegerField()
 
