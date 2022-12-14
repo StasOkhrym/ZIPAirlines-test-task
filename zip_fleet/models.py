@@ -1,4 +1,5 @@
 import math
+from typing import Type
 
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -31,12 +32,14 @@ class Aircraft(models.Model):
         return round(fuel_consumption, 3)
 
     @property
-    def flight_time(self):
+    def flight_time(self) -> int | float:
         flight_time = self.fuel_capacity / self.fuel_consumption
         return round(flight_time, 2)
 
     @staticmethod
-    def validate_passengers(seats, passengers, error_to_raise):
+    def validate_passengers(
+        seats: int, passengers: int, error_to_raise: Type[Exception]
+    ) -> None:
         if not (0 <= passengers <= seats):
             raise error_to_raise(
                 {"passengers": "please enter correct passengers count"}
