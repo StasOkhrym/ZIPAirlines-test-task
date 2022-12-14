@@ -22,7 +22,7 @@ class AircraftSerializer(serializers.ModelSerializer):
 class AircraftCreateSerializer(AircraftSerializer):
 
     def create(self, validated_data) -> Aircraft:
-        aircrafts = Aircraft.objects.count()
+        aircrafts = Aircraft.objects.filter(airline=validated_data["airline"])
 
         if aircrafts > 10:
             raise ValidationError(
