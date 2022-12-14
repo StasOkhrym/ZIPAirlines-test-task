@@ -1,4 +1,8 @@
+from typing import Type
+
+from django.db.models import QuerySet
 from rest_framework import mixins, viewsets
+from rest_framework.serializers import Serializer
 
 from zip_fleet.models import Aircraft, Airline
 from zip_fleet.serializers import (
@@ -27,7 +31,7 @@ class AircraftViewSet(
 ):
     queryset = Aircraft.objects.select_related("airline")
 
-    def get_serializer_class(self):
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.action == "retrieve":
             return AircraftDetailSerializer
         if self.action == "create":
@@ -35,10 +39,10 @@ class AircraftViewSet(
         return AircraftSerializer
 
     @staticmethod
-    def _params_to_ints(qs):
+    def _params_to_ints(qs) -> list[int]:
         return [int(str_id) for str_id in qs.split(",")]
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet:
         airlines = self.request.query_params.get("airlines")
 
         queryset = self.queryset
