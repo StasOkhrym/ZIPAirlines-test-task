@@ -12,6 +12,7 @@ from rest_framework.test import APIClient
 from zip_fleet.serializers import AircraftSerializer, AircraftDetailSerializer
 
 AIRCRAFT_URL = reverse("zip_fleet:aircraft-list")
+AIRLINE_URL = reverse("zip_fleet:airline-list")
 
 
 def sample_airline(**params):
@@ -98,3 +99,34 @@ class AircraftApiTests(TestCase):
         self.assertEqual(serializer.data["fuel_capacity"], fuel_capacity)
         self.assertEqual(serializer.data["fuel_consumption"], fuel_consumption)
         self.assertEqual(serializer.data["flight_time"], flight_time)
+
+    def test_can_not_create_more_than_10_aircrafts(self):
+        airline = sample_airline()
+
+        for _ in range(10):
+            Aircraft.objects.create(
+                airline=airline,
+                seats=15,
+                passengers=10
+            )
+
+        payload = {
+            "airline": airline,
+            "seats": 10,
+            "passengers": 5
+        }
+
+        res = self.client.post(AIRCRAFT_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Aircraft.objects.count(), 10)
+
+    def test_can_not_create_same_airline(self):
+        airline = sample_airline()
+
+        payload = {"name": airline.name}
+
+        res = self.client.post(AIRLINE_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Airline.objects.count(), 1)
