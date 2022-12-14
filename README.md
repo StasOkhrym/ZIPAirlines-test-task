@@ -4,7 +4,7 @@ API service for aircraft management written on DRF
 
 ## Installing using Github
 
-Python must be installed
+Python 3.10 must be installed
 
 ```shell
 git clone https://github.com/StasOkhrym/ZIPAirlines-test-task.git
