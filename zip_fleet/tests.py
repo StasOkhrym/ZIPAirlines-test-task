@@ -4,12 +4,14 @@ import random
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-
-from zip_fleet.models import Aircraft, Airline
-
 from rest_framework.test import APIClient
 
-from zip_fleet.serializers import AircraftSerializer, AircraftDetailSerializer, AirlineSerializer
+from zip_fleet.models import Aircraft, Airline
+from zip_fleet.serializers import (
+    AircraftSerializer,
+    AircraftDetailSerializer,
+    AirlineSerializer
+)
 
 AIRCRAFT_URL = reverse("zip_fleet:aircraft-list")
 AIRLINE_URL = reverse("zip_fleet:airline-list")
